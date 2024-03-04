@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Poppins',sans-serif;
 }
 
 body{
@@ -11,4 +12,12 @@ body{
     position: absolute;
     top: 0;
     left: 0;
+}
+#info{
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

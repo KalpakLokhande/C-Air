@@ -1,77 +1,70 @@
+import {
+    GestureRecognizer,
+    FilesetResolver,
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js";
+
 const canvas = document.getElementById('canvas')
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
-
-let model;
-let video;
-
 const ctx = canvas.getContext('2d')
+let video
+let gestureRecognizer
 
-handTrack.load({ flipHorizontal : true, modelType: "ssd320fpnlite", imageScaleFactor : 1}).then(m => {
+try {
+    const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    );
+    gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
+        baseOptions: {
+            modelAssetPath: "./gesture_recognizer.task",
+            runningMode: 'IMAGE'
+        },
+        numHands: 2
+    })
 
-    model = m
-
-    navigator.mediaDevices.getUserMedia({ video: true, flipHorizontal : true }).then(stream => {
+    navigator.mediaDevices.getUserMedia({video : true}).then(stream => {
 
         video = document.createElement('video')
         video.srcObject = stream
         video.play()
 
-
-        handTrack.startVideo(video)
-
         video.onloadeddata = () => {
+
+            canvas.width = video.videoWidth
+            canvas.height = video.videoHeight
+
 
             animate()
 
         }
 
-
     })
 
-})
+
+
+
+
+} catch (err) {
+    console.log(err)
+}
 
 const animate = () => {
 
-    model.detect(video).then(predictions => {
+    const gestureRecognitionResult = gestureRecognizer.recognize(video)
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    console.log(gestureRecognitionResult.landmarks[0])
+
+    if(gestureRecognitionResult.landmarks[0]){
+
+        for (let i = 0; i < gestureRecognitionResult.landmarks[0].length; i++) {
     
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.beginPath()
+            ctx.arc(gestureRecognitionResult.landmarks[0][i].x * canvas.width, gestureRecognitionResult.landmarks[0][i].y * canvas.height, 3, 0, Math.PI * 2)
+            ctx.fill()
     
-        predictions.forEach(pre => {
-    
-            if (pre.label === 'open') {
-    
-                let center = { x: pre.bbox[0] + pre.bbox[2], y: pre.bbox[1] }
-                ctx.save()
-                ctx.beginPath()
-                ctx.arc(center.x, center.y, 10, 0, Math.PI * 2)
-                ctx.fill()
-                ctx.restore()
-    
-            }
-            if (pre.label === 'point') {
-    
-                let center = { x: pre.bbox[0] + pre.bbox[2], y: pre.bbox[1] }
-                ctx.save()
-                ctx.fillStyle = 'red'
-                ctx.beginPath()
-                ctx.arc(center.x, center.y, 10, 0, Math.PI * 2)
-                ctx.fill()
-                ctx.restore()
-    
-            }
-    
-        })
-    
-    
-    }).catch(err => {
-    
-        console.log(err)
-    
-    })
-    
-    requestAnimationFrame(animate)
+        }
+
+    }
+
+    requestAnimationFrame(() => animate())
 
 }
-    
-

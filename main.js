@@ -3,7 +3,6 @@ import {
     FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js";
 
-import { Analytics } from "@vercel/analytics/react"
 
 const canvas = document.getElementById('canvas')
 const drawCanvas = document.getElementById('drawCanvas')

@@ -14,6 +14,11 @@ body{
     left: 0;
     z-index: -1;
 }
+#gestureCanvas{
+    position: absolute;
+    top: 10;
+    right: 10;
+}
 #info{
     position: absolute;
     top: 20px;
